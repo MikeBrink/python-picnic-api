@@ -10,24 +10,24 @@ class ConfigHandler(dict):
 
         if os.path.isfile(PATH + "/default.yaml"):
             with open(PATH + "/default.yaml", "r") as stream:
-                self.__dict__ = yaml.safe_load(stream)
+                self.update(yaml.safe_load(stream))
         else:
-            self.__dict__ = self._generate_default_config()
+            self.update(self._generate_default_config())
 
         if os.path.isfile(PATH + "/app.yaml"):
             with open(PATH + "/app.yaml", "r") as stream:
-                self.__dict__.update(yaml.safe_load(stream))
+                self.update(yaml.safe_load(stream))
         else:
-            self.__dict__.update(self._generate_app_config())
+            self.update(self._generate_app_config())
 
-        if self.__dict__["username"] == "YOUR_USERNAME_HERE":
-            del self.__dict__["username"]
+        if self["username"] == "YOUR_USERNAME_HERE":
+            del self["username"]
 
-        if self.__dict__["password"] == "YOUR_PASSWORD_HERE":
-            del self.__dict__["password"]
+        if self["password"] == "YOUR_PASSWORD_HERE":
+            del self["password"]
 
     def set_username(self, username):
-        self.__dict__["username"] = username
+        self["username"] = username
         with open(PATH + "/app.yaml", "r") as stream:
             config = yaml.safe_load(stream)
 
@@ -36,7 +36,7 @@ class ConfigHandler(dict):
             yaml.dump(config, stream)
 
     def set_password(self, password):
-        self.__dict__["password"] = password
+        self["password"] = password
         with open(PATH + "/app.yaml", "r") as stream:
             config = yaml.safe_load(stream)
 

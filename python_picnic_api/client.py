@@ -3,15 +3,8 @@ from .config_handler import ConfigHandler
 
 
 class PicnicAPI:
-    def __init__(self, username: str, password: str):
-        """Instantiate a new API client.
-
-        Args:
-            username (str): username, usualy your email. Defaults to None.
-            password (str): password. Defaults to None.
-        """
+    def __init__(self, username=None, password=None):
         config = ConfigHandler()
-
         self._base_url = config['base_url'] + config['api_version']
 
         if username and password:
@@ -26,7 +19,7 @@ class PicnicAPI:
             raise Exception("No username and/or password set")
 
         self.session = PicnicAPISession()
-        self.session.login(username, password)
+        self.session.login(self._username, self._password)
 
     def _get(self, path: str):
         url = self._base_url + path
@@ -39,7 +32,7 @@ class PicnicAPI:
     def get_user(self):
         return self._get("/user")
 
-    def search(self, term):
+    def search(self, term: str):
         path = "/search?search_term=" + term
         return self._get(path)
 
