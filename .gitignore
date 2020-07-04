@@ -122,3 +122,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Visual Studio Code
+.vscode
+
+# Config
+python_picnic_api/config/app.yaml
