@@ -4,19 +4,10 @@ from .config_handler import ConfigHandler
 
 class PicnicAPI:
     def __init__(self, username=None, password=None):
-        config = ConfigHandler()
+        config = ConfigHandler(username=username, password=password)
         self._base_url = config['base_url'] + config['api_version']
-
-        if username and password:
-            self._username = username
-            self._password = password
-
-        elif "username" in config.keys() and "password" in config.keys():
-            self._username = config["username"]
-            self._password = config["password"]
-
-        else:
-            raise Exception("No username and/or password set")
+        self._username = config['username']
+        self._password = config['password']
 
         self.session = PicnicAPISession()
         self.session.login(self._username, self._password)
