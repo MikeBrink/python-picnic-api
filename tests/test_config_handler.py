@@ -19,7 +19,7 @@ def test_app_config_generation():
     if os.path.isfile(path):
         os.rename(path, path[:-1])
 
-    _ = ConfigHandler()
+    _ = ConfigHandler(username="test", password="test")
 
     assertion = os.path.isfile(path)
 
@@ -30,10 +30,9 @@ def test_app_config_generation():
 
 
 def test_properties():
-    config = ConfigHandler()
-    keys = ["api", "base_url"]
-    for key in keys:
-        assert key in config.keys()
+    config = ConfigHandler(username="test", password="test")
+    keys = {"api_version", "base_url", "password", "username"}
+    assert keys == set(config.keys())
 
 
 def test_set_username():
