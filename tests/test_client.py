@@ -19,15 +19,15 @@ def test_get_cart():
     assert isinstance(response, dict)
 
 
-def test_add_product_to_cart():
+def test_add_product():
     picnic = PicnicAPI()
-    response = picnic.add_product_to_cart("10407428")
+    response = picnic.add_product("10407428")
     assert isinstance(response, dict)
 
 
-def test_remove_product_from_cart():
+def test_remove_product():
     picnic = PicnicAPI()
-    response = picnic.remove_product_from_cart("10407428")
+    response = picnic.remove_product("10407428")
     assert isinstance(response, dict)
 
 
