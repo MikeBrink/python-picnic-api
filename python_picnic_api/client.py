@@ -3,13 +3,16 @@ from .config_handler import ConfigHandler
 
 
 class PicnicAPI:
-    def __init__(self, username=None, password=None):
+    def __init__(self, username=None, password=None, store=False):
         config = ConfigHandler()
         self._base_url = config['base_url'] + config['api_version']
 
         if username and password:
             self._username = username
             self._password = password
+            if store:
+                config.set_username(username)
+                config.set_password(password)
 
         elif "username" in config.keys() and "password" in config.keys():
             self._username = config["username"]
@@ -39,11 +42,11 @@ class PicnicAPI:
     def get_cart(self):
         return self._get("/cart")
 
-    def add_product_to_cart(self, productId, count=1):
+    def add_product(self, productId, count=1):
         data = {"product_id": productId, "count": count}
         return self._post("/cart/add_product", data)
 
-    def remove_product_from_cart(self, productId, count=1):
+    def remove_product(self, productId, count=1):
         data = {"product_id": productId, "count": count}
         return self._post("/cart/remove_product", data)
 
@@ -58,4 +61,4 @@ class PicnicAPI:
         return self._post("/deliveries", data=data)
 
 
-__all__ = ["ConfigHandler"]
+__all__ = ["PicnicAPI"]
