@@ -4,8 +4,10 @@ from .config_handler import ConfigHandler
 
 class PicnicAPI:
     def __init__(self, username=None, password=None, store=False):
-        config = ConfigHandler()
+        config = ConfigHandler(username=username, password=password)
         self._base_url = config['base_url'] + config['api_version']
+        self._username = config['username']
+        self._password = config['password']
 
         if username and password:
             self._username = username
