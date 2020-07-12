@@ -27,7 +27,7 @@ class PicnicAPI:
             raise Exception("No username and/or password set")
 
         self.session = PicnicAPISession()
-        self.session.login(self._username, self._password)
+        self.session.login(self._username, self._password, self._base_url)
 
     def _url(self, config):
         return (

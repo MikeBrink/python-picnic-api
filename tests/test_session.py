@@ -11,9 +11,13 @@ def test_login():
     config = ConfigHandler()
     username = config["username"]
     password = config["password"]
+    base_url = (
+        config["base_url"].format(config["country_code"].lower())
+        + config["api_version"]
+    )
 
     session = PicnicAPISession()
-    session.login(username, password)
+    session.login(username, password, base_url)
     assert "x-picnic-auth" in session.headers.keys()
 
 

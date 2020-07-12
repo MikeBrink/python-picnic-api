@@ -31,7 +31,7 @@ def test_app_config_generation():
 
 def test_properties():
     config = ConfigHandler(username="test", password="test")
-    keys = {"api_version", "base_url", "password", "username"}
+    keys = {"api_version", "base_url", "password", "username", "country_code"}
     assert keys == set(config.keys())
 
 
