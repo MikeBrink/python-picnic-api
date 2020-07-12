@@ -3,7 +3,13 @@ from .config_handler import ConfigHandler
 
 
 class PicnicAPI:
-    def __init__(self, username=None, password=None, country_code=None, store=False):
+    def __init__(
+        self,
+        username: str = None,
+        password: str = None,
+        country_code: str = None,
+        store: bool = False,
+    ):
         config = ConfigHandler(
             username=username, password=password, country_code=country_code, store=store
         )
@@ -50,14 +56,21 @@ class PicnicAPI:
         path = "/search?search_term=" + term
         return self._get(path)
 
+    def get_lists(self, listId: str = None):
+        if listId:
+            path = "/lists/" + listId
+        else:
+            path = "/lists"
+        return self._get(path)
+
     def get_cart(self):
         return self._get("/cart")
 
-    def add_product(self, productId, count=1):
+    def add_product(self, productId: str, count: int = 1):
         data = {"product_id": productId, "count": count}
         return self._post("/cart/add_product", data)
 
-    def remove_product(self, productId, count=1):
+    def remove_product(self, productId: str, count: int = 1):
         data = {"product_id": productId, "count": count}
         return self._post("/cart/remove_product", data)
 
@@ -66,6 +79,17 @@ class PicnicAPI:
 
     def get_delivery_slots(self):
         return self._get("/cart/delivery_slots")
+
+    def get_delivery(self, deliveryId: str):
+        path = "/deliveries/" + deliveryId
+        data = []
+        return self._post(path, data=data)
+
+    def get_deliveries(self, summary: bool = False):
+        data = []
+        if summary:
+            return self._post("/deliveries/summary", data=data)
+        return self._post("/deliveries", data=data)
 
     def get_current_deliveries(self):
         data = ["CURRENT"]

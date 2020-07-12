@@ -13,6 +13,14 @@ def test_search():
     assert isinstance(response, list)
 
 
+def test_get_lists():
+    picnic = PicnicAPI()
+    response_1 = picnic.get_lists()
+    response_2 = picnic.get_lists("21725")
+    assert isinstance(response_1, list)
+    assert isinstance(response_2, list)
+
+
 def test_get_cart():
     picnic = PicnicAPI()
     response = picnic.get_cart()
@@ -43,9 +51,26 @@ def test_get_delivery_slots():
     assert isinstance(response, dict)
 
 
+def test_get_deliveries():
+    picnic = PicnicAPI()
+    response_1 = picnic.get_deliveries()
+    response_2 = picnic.get_deliveries(summary=True)
+    assert isinstance(response_1, list)
+    assert isinstance(response_2, list)
+
+
+def test_get_delivery():
+    picnic = PicnicAPI()
+    response = picnic.get_deliveries()
+    deliveryId = response[0]["id"]
+    response = picnic.get_delivery(deliveryId)
+    assert isinstance(response, dict)
+
+
 def test_get_current_deliveries():
     picnic = PicnicAPI()
     response = picnic.get_current_deliveries()
     assert isinstance(response, list)
+
 
 # TO DO: add test for re-logging
