@@ -3,18 +3,21 @@ from .config_handler import ConfigHandler
 
 
 class PicnicAPI:
-    def __init__(self, username=None, password=None, store=False):
-        config = ConfigHandler(username=username, password=password)
-        self._base_url = config['base_url'] + config['api_version']
-        self._username = config['username']
-        self._password = config['password']
+    def __init__(self, username=None, password=None, country_code=None, store=False):
+        config = ConfigHandler(
+            username=username, password=password, country_code=country_code, store=store
+        )
+        self._base_url = self._url(config)
+        self._username = config["username"]
+        self._password = config["password"]
 
-        if username and password:
+        if username and password and store:
             self._username = username
             self._password = password
             if store:
                 config.set_username(username)
                 config.set_password(password)
+                config.set_country_code(country_code)
 
         elif "username" in config.keys() and "password" in config.keys():
             self._username = config["username"]
@@ -25,6 +28,12 @@ class PicnicAPI:
 
         self.session = PicnicAPISession()
         self.session.login(self._username, self._password)
+
+    def _url(self, config):
+        return (
+            config["base_url"].format(config["country_code"].lower())
+            + config["api_version"]
+        )
 
     def _get(self, path: str):
         url = self._base_url + path

@@ -5,7 +5,15 @@ PATH = "./python_picnic_api/config"
 
 
 class ConfigHandler(dict):
-    def __init__(self, username=None, password=None, *arg, **kwargs):
+    def __init__(
+        self,
+        username=None,
+        password=None,
+        country_code=None,
+        store=False,
+        *arg,
+        **kwargs
+    ):
         super().__init__(*arg, **kwargs)
 
         self._check_default_config()
@@ -15,6 +23,14 @@ class ConfigHandler(dict):
         if username and password:
             self["username"] = username
             self["password"] = password
+            if store:
+                self.set_username(username)
+                self.set_password(password)
+
+        if country_code:
+            self["country_code"] = country_code
+            if store:
+                self.set_country_code(country_code)
 
         if "username" not in self.keys() or "password" not in self.keys():
             raise Exception("No username and/or password provided")
@@ -37,6 +53,15 @@ class ConfigHandler(dict):
         with open(PATH + "/app.yaml", "w") as stream:
             yaml.dump(config, stream)
 
+    def set_country_code(self, country_code):
+        self["country_code"] = country_code
+        with open(PATH + "/app.yaml", "r") as stream:
+            config = yaml.safe_load(stream)
+
+        config["country_code"] = country_code
+        with open(PATH + "/app.yaml", "w") as stream:
+            yaml.dump(config, stream)
+
     def _check_defaults(self):
         if self["username"] == "YOUR_USERNAME_HERE":
             del self["username"]
@@ -53,8 +78,9 @@ class ConfigHandler(dict):
 
     def _generate_default_config(self):
         config = dict(
-            base_url="https://storefront-prod.nl.picnicinternational.com/api/",
+            base_url="https://storefront-prod.{}.picnicinternational.com/api/",
             api_version="15",
+            country_code="NL",
         )
 
         with open(PATH + "/default.yaml", "w") as stream:
@@ -70,7 +96,7 @@ class ConfigHandler(dict):
             self.update(self._generate_app_config())
 
     def _generate_app_config(self):
-        config = dict(username="YOUR_USERNAME_HERE", password="YOUR_PASSWORD_HERE")
+        config = dict(username="YOUR_USERNAME_HERE", password="YOUR_PASSWORD_HERE",)
 
         with open(PATH + "/app.yaml", "w") as stream:
             yaml.dump(config, stream)
