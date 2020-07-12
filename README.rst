@@ -26,10 +26,10 @@ To login:
 
     from python-picnic-api import PicnicAPI
 
-    picnic = PicnicAPI(username='username', password='password', store=False)
+    picnic = PicnicAPI(username='username', password='password', country_code="NL", store=False)
 
-
-You can also store your credentials by setting the store value to true, this will store your credentials in /config/app.yaml
+The country_code parameter defaults to NL, but you have to change it if you live in a different country than the Netherlands (Germany: DE, Belgium: BE).
+You can also store your credentials by setting the store value to true, this will store your credentials and country_code in /config/app.yaml. 
 
 Searching for a product
 -----------------------
