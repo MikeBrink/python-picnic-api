@@ -13,7 +13,7 @@ class PicnicAPISession(Session):
             }
         )
 
-    def login(self, username: str, password: str):
+    def login(self, username: str, password: str, base_url: str):
         """Login function for the Picnic API.
 
         Args:
@@ -24,7 +24,7 @@ class PicnicAPISession(Session):
         if "x-picnic-auth" in self.headers:
             self.headers.pop("x-picnic-auth", None)
 
-        url = "https://storefront-prod.nl.picnicinternational.com/api/15/user/login"
+        url = base_url + "/user/login"
 
         secret = md5(password.encode("utf-8")).hexdigest()
         data = {"key": username, "secret": secret, "client_id": 1}
