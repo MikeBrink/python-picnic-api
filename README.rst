@@ -24,7 +24,7 @@ To login:
 
 .. code-block:: python
 
-    from python-picnic-api import PicnicAPI
+    from python_picnic_api import PicnicAPI
 
     picnic = PicnicAPI(username='username', password='password', country_code="NL", store=False)
 
@@ -53,19 +53,19 @@ All of these methods will return the shopping cart.
 .. code-block:: python
 
     # adding 2 'Lavazza espresso koffiebonen' to cart
-    >>> picnic.add_product('10511523', count=2)
+    picnic.add_product('10511523', count=2)
 
     # removing 1 'Lavazza espresso koffiebonen' from cart
-    >>> picnic.remove_product('10511523')
+    picnic.remove_product('10511523')
 
     # clearing the cart
-    >>> picnic.clear_cart()
+    picnic.clear_cart()
 
 See upcomming deliveries
 ------------------------
 .. code-block:: python
 
-    >>> picnic.get_current_deliveries()
+    picnic.get_current_deliveries()
     []
 
 
@@ -73,5 +73,5 @@ See available delivery slots
 ----------------------------
 .. code-block:: python
 
-    >>> picnic.get_delivery_slots()
+    picnic.get_delivery_slots()
 
