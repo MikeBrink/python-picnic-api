@@ -65,7 +65,7 @@ See upcomming deliveries
 ------------------------
 .. code-block:: python
 
-    picnic.get_current_deliveries()
+    >>> picnic.get_current_deliveries()
     []
 
 
@@ -73,5 +73,5 @@ See available delivery slots
 ----------------------------
 .. code-block:: python
 
-    picnic.get_delivery_slots()
+    >>> picnic.get_delivery_slots()
 

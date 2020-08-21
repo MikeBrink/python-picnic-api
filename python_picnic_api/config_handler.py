@@ -1,7 +1,7 @@
 import os
 import yaml
 
-PATH = "./python_picnic_api/config"
+PATH = os.path.join(os.path.dirname(__file__), "config")
 
 
 class ConfigHandler(dict):
