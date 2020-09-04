@@ -73,4 +73,19 @@ def test_get_current_deliveries():
     assert isinstance(response, list)
 
 
+def test_get_categories():
+    picnic = PicnicAPI()
+    response = picnic.get_categories()
+    assert isinstance(response, list)
+
+
+def test_print_categories(capsys):
+    picnic = PicnicAPI()
+
+    picnic.print_categories()
+    captured = capsys.readouterr()
+
+    assert isinstance(captured.out, str)
+
+
 # TO DO: add test for re-logging

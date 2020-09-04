@@ -1,5 +1,6 @@
 from .session import PicnicAPISession
 from .config_handler import ConfigHandler
+from .helper import _tree_generator
 
 
 class PicnicAPI:
@@ -17,7 +18,7 @@ class PicnicAPI:
         self._username = config["username"]
         self._password = config["password"]
 
-        if username and password and store:
+        if username and password:
             self._username = username
             self._password = password
             if store:
@@ -94,6 +95,13 @@ class PicnicAPI:
     def get_current_deliveries(self):
         data = ["CURRENT"]
         return self._post("/deliveries", data=data)
+
+    def get_categories(self, depth: int = 0):
+        return self._get(f"/my_store?depth={depth}")["catalog"]
+
+    def print_categories(self, depth: int = 0):
+        tree = "\n".join(_tree_generator(self.get_categories(depth=depth)))
+        print(tree)
 
 
 __all__ = ["PicnicAPI"]
