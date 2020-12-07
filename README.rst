@@ -65,7 +65,7 @@ All of these methods will return the shopping cart.
     # clearing the cart
     picnic.clear_cart()
 
-See upcomming deliveries
+See upcoming deliveries
 ------------------------
 .. code-block:: python
 
