@@ -83,8 +83,7 @@ class PicnicAPI:
 
     def get_delivery(self, deliveryId: str):
         path = "/deliveries/" + deliveryId
-        data = []
-        return self._post(path, data=data)
+        return self._get(path)
 
     def get_deliveries(self, summary: bool = False):
         data = []
