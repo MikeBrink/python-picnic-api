@@ -1,46 +1,23 @@
 from .session import PicnicAPISession
-from .config_handler import ConfigHandler
-from .helper import _tree_generator
+from .helper import _tree_generator, _url_generator
+
+DEFAULT_URL = "https://storefront-prod.{}.picnicinternational.com/api/{}"
+DEFAULT_COUNTRY_CODE = "NL"
+DEFAULT_API_VERSION = "15"
 
 
 class PicnicAPI:
     def __init__(
-        self,
-        username: str = None,
-        password: str = None,
-        country_code: str = None,
-        store: bool = False,
+        self, username: str, password: str, country_code: str = DEFAULT_COUNTRY_CODE
     ):
-        config = ConfigHandler(
-            username=username, password=password, country_code=country_code, store=store
+        self._username = username
+        self._password = password
+        self._base_url = _url_generator(
+            DEFAULT_URL, DEFAULT_COUNTRY_CODE, DEFAULT_API_VERSION
         )
-        self._base_url = self._url(config)
-        self._username = config["username"]
-        self._password = config["password"]
-
-        if username and password:
-            self._username = username
-            self._password = password
-            if store:
-                config.set_username(username)
-                config.set_password(password)
-                config.set_country_code(country_code)
-
-        elif "username" in config.keys() and "password" in config.keys():
-            self._username = config["username"]
-            self._password = config["password"]
-
-        else:
-            raise Exception("No username and/or password set")
 
         self.session = PicnicAPISession()
         self.session.login(self._username, self._password, self._base_url)
-
-    def _url(self, config):
-        return (
-            config["base_url"].format(config["country_code"].lower())
-            + config["api_version"]
-        )
 
     def _get(self, path: str):
         url = self._base_url + path
