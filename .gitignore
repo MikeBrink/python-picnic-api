@@ -125,6 +125,3 @@ dmypy.json
 
 # Visual Studio Code
 .vscode
-
-# Config
-python_picnic_api/config/app.yaml

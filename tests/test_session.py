@@ -1,6 +1,17 @@
 from python_picnic_api.session import PicnicAPISession
-from python_picnic_api.config_handler import ConfigHandler
+from python_picnic_api.helper import _url_generator
 from requests import Session
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+username = os.getenv("USERNAME")
+password = os.getenv("PASSWORD")
+country_code = os.getenv("COUNTRY_CODE")
+
+DEFAULT_URL = "https://storefront-prod.{}.picnicinternational.com/api/{}"
+DEFAULT_API_VERSION = "15"
 
 
 def test_init():
@@ -8,13 +19,7 @@ def test_init():
 
 
 def test_login():
-    config = ConfigHandler()
-    username = config["username"]
-    password = config["password"]
-    base_url = (
-        config["base_url"].format(config["country_code"].lower())
-        + config["api_version"]
-    )
+    base_url = _url_generator(DEFAULT_URL, DEFAULT_API_VERSION, country_code)
 
     session = PicnicAPISession()
     session.login(username, password, base_url)
