@@ -38,6 +38,10 @@ jobs:
       run: python -m poetry install
 
     - name: Test with pytest
+      env:
+        USERNAME: ${{ secrets.PICNIC_USERNAME }}
+        PASSWORD: ${{ secrets.PICNIC_PASSWORD }}
+        COUNTRY_CODE: ${{ secrets.PICNIC_COUNTRY_CODE }}
       run: |
         python -m poetry run python -m pytest -v tests
         
