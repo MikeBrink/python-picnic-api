@@ -8,7 +8,7 @@ readme = "README.rst"
 repository = "https://github.com/MikeBrink/python-picnic-api"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.6"
 requests = "^2.24.0"
 
 [tool.poetry.dev-dependencies]
