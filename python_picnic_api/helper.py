@@ -21,5 +21,5 @@ def _tree_generator(response: list, prefix: str = ""):
             yield from _tree_generator(item["items"], prefix=prefix + extension)
 
 
-def _url_generator(self, url: str, country_code: str, api_version: str):
+def _url_generator(url: str, country_code: str, api_version: str):
     return url.format(country_code.lower(), api_version)

@@ -19,7 +19,7 @@ def test_init():
 
 
 def test_login():
-    base_url = _url_generator(DEFAULT_URL, DEFAULT_API_VERSION, country_code)
+    base_url = _url_generator(DEFAULT_URL, country_code, DEFAULT_API_VERSION)
 
     session = PicnicAPISession()
     session.login(username, password, base_url)
