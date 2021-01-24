@@ -12,8 +12,9 @@ class PicnicAPI:
     ):
         self._username = username
         self._password = password
+        self._country_code = country_code
         self._base_url = _url_generator(
-            DEFAULT_URL, DEFAULT_COUNTRY_CODE, DEFAULT_API_VERSION
+            DEFAULT_URL, self._country_code, DEFAULT_API_VERSION
         )
 
         self.session = PicnicAPISession()
