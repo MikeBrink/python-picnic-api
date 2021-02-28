@@ -1,4 +1,4 @@
-from python_picnic_api.session import PicnicAPISession
+from python_picnic_api.session import PicnicAPISession, PicnicAuthError
 from python_picnic_api.helper import _url_generator
 from requests import Session
 from dotenv import load_dotenv
@@ -26,4 +26,13 @@ def test_login():
     assert "x-picnic-auth" in session.headers.keys()
 
 
-# TO DO: add test for wrong credentials
+def test_login_auth_error():
+    base_url = _url_generator(DEFAULT_URL, country_code, DEFAULT_API_VERSION)
+
+    try:
+        session = PicnicAPISession()
+        session.login('username', 'password', base_url)
+    except PicnicAuthError:
+        assert True
+    else:
+        assert False

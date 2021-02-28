@@ -1,4 +1,4 @@
-from .session import PicnicAPISession
+from .session import PicnicAPISession, PicnicAuthError
 from .helper import _tree_generator, _url_generator
 
 DEFAULT_URL = "https://storefront-prod.{}.picnicinternational.com/api/{}"
@@ -22,11 +22,25 @@ class PicnicAPI:
 
     def _get(self, path: str):
         url = self._base_url + path
-        return self.session.get(url).json()
+        response = self.session.get(url).json()
+
+        if self._contains_auth_error(response):
+            raise PicnicAuthError("Picnic authentication error")
+
+        return response
 
     def _post(self, path: str, data=None):
         url = self._base_url + path
-        return self.session.post(url, json=data).json()
+        response = self.session.post(url, json=data).json()
+
+        if self._contains_auth_error(response):
+            raise PicnicAuthError("Picnic authentication error")
+
+        return response
+
+    @staticmethod
+    def _contains_auth_error(response):
+        return isinstance(response, dict) and response.setdefault('error', {}).get('code') == 'AUTH_ERROR'
 
     def get_user(self):
         return self._get("/user")
