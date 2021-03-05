@@ -1,136 +1,167 @@
+import unittest
+from unittest.mock import patch
+
 from python_picnic_api import PicnicAPI
-from dotenv import load_dotenv
-import os
+from python_picnic_api.client import DEFAULT_URL
+from python_picnic_api.session import PicnicAuthError
 
-load_dotenv()
-
-username = os.getenv("USERNAME")
-password = os.getenv("PASSWORD")
-country_code = os.getenv("COUNTRY_CODE")
-
-picnic = PicnicAPI(username, password, country_code=country_code)
+PICNIC_HEADERS = {
+    "x-picnic-agent": "30100;1.15.77-10293",
+    "x-picnic-did": "3C417201548B2E3B"
+}
 
 
-def _get_amount(cart: dict, product_id: str):
-    items = cart["items"][0]["items"]
-    product = next((item for item in items if item["id"] == product_id), None)
-    return product["decorators"][0]["quantity"]
+class TestClient(unittest.TestCase):
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.json_data = json_data
+            self.status_code = status_code
 
+        def json(self):
+            return self.json_data
 
-def test_get_user():
-    response = picnic.get_user()
-    assert isinstance(response, dict)
-    assert "contact_email" in response.keys()
-    assert response["contact_email"] == username
+    def setUp(self) -> None:
+        self.session_patcher = patch('python_picnic_api.client.PicnicAPISession')
+        self.session_mock = self.session_patcher.start()
+        self.client = PicnicAPI(username='test@test.nl', password='test')
+        self.expected_base_url = DEFAULT_URL.format('nl', '15')
 
+    def tearDown(self) -> None:
+        self.session_patcher.stop()
 
-def test_search():
-    response = picnic.search("koffie")
-    assert isinstance(response, list)
-    assert isinstance(response[0], dict)
-    assert "id" in response[0].keys()
-    assert response[0]["id"] == "koffie"
+    def test_get_user(self):
+        response = {
+            "user_id": "594-241-3623",
+            "firstname": "Firstname",
+            "lastname": "Lastname",
+            "address": {
+                "house_number": 25,
+                "house_number_ext": "b",
+                "postcode": "1234 AB",
+                "street": "Dorpsstraat",
+                "city": "Het dorp"
+            },
+            "phone": "+31123456798",
+            "contact_email": "test@test.nl",
+            "total_deliveries": 25,
+            "completed_deliveries": 20,
+        }
+        self.session_mock().get.return_value = self.MockResponse(response, 200)
 
+        user = self.client.get_user()
+        self.session_mock().get.assert_called_with(self.expected_base_url + '/user', headers=None)
+        self.assertDictEqual(user, response)
 
-def test_get_lists():
-    response_1 = picnic.get_lists()
-    response_2 = picnic.get_lists("21725")
-    assert isinstance(response_1, list)
-    assert isinstance(response_2, list)
+    def test_search(self):
+        self.client.search('test-product')
+        self.session_mock().get.assert_called_with(self.expected_base_url + '/search?search_term=test-product',
+                                                   headers=None)
 
+    def test_get_lists(self):
+        self.client.get_lists()
+        self.session_mock().get.assert_called_with(self.expected_base_url + '/lists', headers=None)
 
-def test_get_cart():
-    response = picnic.get_cart()
-    assert isinstance(response, dict)
-    assert "id" in response.keys()
-    assert response["id"] == "shopping_cart"
+    def test_get_list_by_id(self):
+        self.client.get_lists('abc')
+        self.session_mock().get.assert_called_with(self.expected_base_url + '/lists/abc', headers=None)
 
+    def test_get_cart(self):
+        self.client.get_cart()
+        self.session_mock().get.assert_called_with(self.expected_base_url + '/cart', headers=None)
 
-def test_add_product():
-    # need a clear cart for reproducibility
-    picnic.clear_cart()
-    response = picnic.add_product("10407428", count=2)
+    def test_add_product(self):
+        self.client.add_product('p3f2qa')
+        self.session_mock().post.assert_called_with(self.expected_base_url + '/cart/add_product',
+                                                    json={"product_id": 'p3f2qa', "count": 1})
 
-    assert isinstance(response, dict)
-    assert "items" in response.keys()
-    assert any(item["id"] == "10407428" for item in response["items"][0]["items"])
-    assert _get_amount(response, "10407428") == 2
+    def test_add_multiple_products(self):
+        self.client.add_product('gs4puhf3a', count=5)
+        self.session_mock().post.assert_called_with(self.expected_base_url + '/cart/add_product',
+                                                    json={"product_id": 'gs4puhf3a', "count": 5})
 
+    def test_remove_product(self):
+        self.client.remove_product('gs4puhf3a', count=5)
+        self.session_mock().post.assert_called_with(self.expected_base_url + '/cart/remove_product',
+                                                    json={"product_id": 'gs4puhf3a', "count": 5})
 
-def test_remove_product():
-    # need a clear cart for reproducibility
-    picnic.clear_cart()
-    # add two coffee to the cart so we can remove 1
-    picnic.add_product("10407428", count=2)
+    def test_clear_cart(self):
+        self.client.clear_cart()
+        self.session_mock().post.assert_called_with(self.expected_base_url + '/cart/clear', json=None)
 
-    response = picnic.remove_product("10407428", count=1)
-    amount = _get_amount(response, "10407428")
+    def test_get_delivery_slots(self):
+        self.client.get_delivery_slots()
+        self.session_mock().get.assert_called_with(self.expected_base_url + '/cart/delivery_slots', headers=None)
 
-    assert isinstance(response, dict)
-    assert "items" in response.keys()
-    assert amount == 1
+    def test_get_delivery(self):
+        self.client.get_delivery('3fpawshusz3')
+        self.session_mock().get.assert_called_with(self.expected_base_url + '/deliveries/3fpawshusz3', headers=None)
 
+    def test_get_delivery_scenario(self):
+        self.client.get_delivery_scenario('3fpawshusz3')
+        self.session_mock().get.assert_called_with(
+            self.expected_base_url + '/deliveries/3fpawshusz3/scenario',
+            headers=PICNIC_HEADERS
+        )
 
-def test_clear_cart():
-    # need a clear cart for reproducibility
-    picnic.clear_cart()
-    # add two coffee to the cart so we can clear it
-    picnic.add_product("10407428", count=2)
+    def test_get_delivery_position(self):
+        self.client.get_delivery_position('3fpawshusz3')
+        self.session_mock().get.assert_called_with(
+            self.expected_base_url + '/deliveries/3fpawshusz3/position',
+            headers=PICNIC_HEADERS
+        )
 
-    response = picnic.clear_cart()
+    def test_get_deliveries(self):
+        self.client.get_deliveries()
+        self.session_mock().post.assert_called_with(self.expected_base_url + '/deliveries', json=[])
 
-    assert isinstance(response, dict)
-    assert "items" in response.keys()
-    assert len(response["items"]) == 0
+    def test_get_deliveries_summary(self):
+        self.client.get_deliveries(summary=True)
+        self.session_mock().post.assert_called_with(self.expected_base_url + '/deliveries/summary', json=[])
 
+    def test_get_current_deliveries(self):
+        self.client.get_current_deliveries()
+        self.session_mock().post.assert_called_with(self.expected_base_url + '/deliveries', json=['CURRENT'])
 
-def test_get_delivery_slots():
-    response = picnic.get_delivery_slots()
-    assert isinstance(response, dict)
-    assert "delivery_slots" in response.keys()
-    assert isinstance(response["delivery_slots"], list)
+    def test_get_categories(self):
+        self.session_mock().get.return_value = self.MockResponse({
+            "type": "MY_STORE",
+            "catalog": [{
+                "type": "CATEGORY",
+                "id": "purchases",
+                "name": "Besteld",
+            }, {
+                "type": "CATEGORY",
+                "id": "promotions",
+                "name": "Acties",
+            }],
+            "user": {}
+        }, 200)
 
+        categories = self.client.get_categories()
+        self.session_mock().get.assert_called_with(self.expected_base_url + '/my_store?depth=0', headers=None)
 
-def test_get_deliveries():
-    response_1 = picnic.get_deliveries()
-    response_2 = picnic.get_deliveries(summary=True)
+        self.assertDictEqual(categories[0], {
+                "type": "CATEGORY",
+                "id": "purchases",
+                "name": "Besteld",
+            })
 
-    assert isinstance(response_1, list)
-    assert isinstance(response_1[0], dict)
-    assert response_1[0]["type"] == "DELIVERY"
+    def test_get_auth_exception(self):
+        self.session_mock().get.return_value = self.MockResponse({
+            "error": {
+                "code": "AUTH_ERROR"
+            }
+        }, 400)
 
-    assert isinstance(response_2, list)
-    assert isinstance(response_2[0], dict)
+        with self.assertRaises(PicnicAuthError):
+            self.client.get_user()
 
-    assert response_1 != response_2
+    def test_post_auth_exception(self):
+        self.session_mock().post.return_value = self.MockResponse({
+            "error": {
+                "code": "AUTH_ERROR"
+            }
+        }, 400)
 
-
-def test_get_delivery():
-    # get a id to test against
-    response = picnic.get_deliveries()
-    deliveryId = response[0]["id"]
-
-    response = picnic.get_delivery(deliveryId)
-    assert isinstance(response, dict)
-    assert response["type"] == "DELIVERY"
-    assert response["id"] == deliveryId
-
-
-def test_get_current_deliveries():
-    response = picnic.get_current_deliveries()
-    assert isinstance(response, list)
-
-
-def test_get_categories():
-    response = picnic.get_categories()
-    assert isinstance(response, list)
-
-
-def test_print_categories(capsys):
-    picnic.print_categories()
-    captured = capsys.readouterr()
-
-    assert isinstance(captured.out, str)
-
-
-# TO DO: add test for re-logging
+        with self.assertRaises(PicnicAuthError):
+            self.client.clear_cart()
