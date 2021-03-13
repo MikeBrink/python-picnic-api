@@ -1,5 +1,5 @@
-from .session import PicnicAPISession, PicnicAuthError
 from .helper import _tree_generator, _url_generator
+from .session import PicnicAPISession, PicnicAuthError
 
 DEFAULT_URL = "https://storefront-prod.{}.picnicinternational.com/api/{}"
 DEFAULT_COUNTRY_CODE = "NL"
@@ -8,17 +8,19 @@ DEFAULT_API_VERSION = "15"
 
 class PicnicAPI:
     def __init__(
-            self, username: str, password: str, country_code: str = DEFAULT_COUNTRY_CODE
+        self, username: str = None, password: str = None,
+        country_code: str = DEFAULT_COUNTRY_CODE, auth_token: str = None
     ):
-        self._username = username
-        self._password = password
         self._country_code = country_code
         self._base_url = _url_generator(
             DEFAULT_URL, self._country_code, DEFAULT_API_VERSION
         )
 
-        self.session = PicnicAPISession()
-        self.session.login(self._username, self._password, self._base_url)
+        self.session = PicnicAPISession(auth_token=auth_token)
+
+        # Login if not authenticated
+        if not self.session.authenticated() and username and password:
+            self.login(username, password)
 
     def _get(self, path: str, add_picnic_headers=False):
         url = self._base_url + path
@@ -47,6 +49,12 @@ class PicnicAPI:
     @staticmethod
     def _contains_auth_error(response):
         return isinstance(response, dict) and response.setdefault('error', {}).get('code') == 'AUTH_ERROR'
+
+    def login(self, username: str, password: str):
+        return self.session.login(username, password, self._base_url)
+
+    def logged_in(self):
+        return self.session.authenticated()
 
     def get_user(self):
         return self._get("/user")

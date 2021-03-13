@@ -7,13 +7,18 @@ class PicnicAuthError(Exception):
 
 
 class PicnicAPISession(Session):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+
+    AUTH_HEADER = "x-picnic-auth"
+
+    def __init__(self, auth_token=None):
+        super().__init__()
+        self.auth_token = auth_token
 
         self.headers.update(
             {
                 "User-Agent": "okhttp/3.9.0",
                 "Content-Type": "application/json; charset=UTF-8",
+                self.AUTH_HEADER: self.auth_token
             }
         )
 
@@ -21,8 +26,9 @@ class PicnicAPISession(Session):
         """Login function for the Picnic API.
 
         Args:
-            username (str): username, usualy your email.
+            username (str): username, usually your email.
             password (str): password.
+            base_url (str): The base url for doing requests
         """
 
         if "x-picnic-auth" in self.headers:
@@ -34,10 +40,17 @@ class PicnicAPISession(Session):
         data = {"key": username, "secret": secret, "client_id": 1}
 
         response = self.post(url, json=data)
-        if "x-picnic-auth" not in response.headers:
+        if self.AUTH_HEADER not in response.headers:
             raise PicnicAuthError("Could not authenticate against Picnic API")
 
-        self.headers.update({"x-picnic-auth": response.headers["x-picnic-auth"]})
+        self.auth_token = response.headers[self.AUTH_HEADER]
+        self.headers.update({self.AUTH_HEADER: self.auth_token})
+
+        return self.auth_token
+
+    def authenticated(self):
+        """Returns if the user is authenticated by checking if the authentication token is set."""
+        return bool(self.auth_token)
 
 
 __all__ = ["PicnicAuthError", "PicnicAPISession"]

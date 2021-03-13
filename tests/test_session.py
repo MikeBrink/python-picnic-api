@@ -40,3 +40,13 @@ class TestSession(unittest.TestCase):
 
         with self.assertRaises(PicnicAuthError):
             self.picnic_session.login('test@user.nl', 'test-password', 'https://picnic.app')
+
+    def test_authenticated_with_auth_token(self):
+        picnic_session = PicnicAPISession(auth_token=None)
+        self.assertFalse(picnic_session.authenticated())
+        self.assertIsNone(picnic_session.headers[picnic_session.AUTH_HEADER])
+
+        picnic_session = PicnicAPISession(auth_token='3p9aw8fhzsefaw29f38h7p3fwuefah37f8kwg3i')
+        self.assertTrue(picnic_session.authenticated())
+        self.assertEqual(picnic_session.headers[picnic_session.AUTH_HEADER], '3p9aw8fhzsefaw29f38h7p3fwuefah37f8kwg3i')
+

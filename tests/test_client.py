@@ -29,6 +29,16 @@ class TestClient(unittest.TestCase):
     def tearDown(self) -> None:
         self.session_patcher.stop()
 
+    def test_login_credentials(self):
+        self.session_mock().authenticated.return_value = False
+        PicnicAPI(username='test@test.nl', password='test')
+        self.session_mock().login.assert_called_with('test@test.nl', 'test', self.expected_base_url)
+
+    def test_login_auth_token(self):
+        self.session_mock().authenticated.return_value = True
+        PicnicAPI(username='test@test.nl', password='test', auth_token='a3fwo7f3h78kf3was7h8f3ahf3ah78f3')
+        self.session_mock().login.assert_not_called()
+
     def test_get_user(self):
         response = {
             "user_id": "594-241-3623",
