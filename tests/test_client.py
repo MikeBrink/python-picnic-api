@@ -160,8 +160,8 @@ class TestClient(unittest.TestCase):
             {
                 "type": "MY_STORE",
                 "catalog": [
-                    {"type": "CATEGORY", "id": "purchases", "name": "Besteld",},
-                    {"type": "CATEGORY", "id": "promotions", "name": "Acties",},
+                    {"type": "CATEGORY", "id": "purchases", "name": "Besteld"},
+                    {"type": "CATEGORY", "id": "promotions", "name": "Acties"},
                 ],
                 "user": {},
             },
@@ -174,7 +174,7 @@ class TestClient(unittest.TestCase):
         )
 
         self.assertDictEqual(
-            categories[0], {"type": "CATEGORY", "id": "purchases", "name": "Besteld",}
+            categories[0], {"type": "CATEGORY", "id": "purchases", "name": "Besteld"}
         )
 
     def test_get_auth_exception(self):
