@@ -49,4 +49,3 @@ class TestSession(unittest.TestCase):
         picnic_session = PicnicAPISession(auth_token='3p9aw8fhzsefaw29f38h7p3fwuefah37f8kwg3i')
         self.assertTrue(picnic_session.authenticated())
         self.assertEqual(picnic_session.headers[picnic_session.AUTH_HEADER], '3p9aw8fhzsefaw29f38h7p3fwuefah37f8kwg3i')
-
