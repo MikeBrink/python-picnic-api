@@ -61,6 +61,10 @@ class TestClient(unittest.TestCase):
         self.client.get_lists()
         self.session_mock().get.assert_called_with(self.expected_base_url + '/lists', headers=None)
 
+    def test_get_sublist(self):
+        self.client.get_sublist(list_id="promotion", sublist_id="12345")
+        self.session_mock().get.assert_called_with(self.expected_base_url + '/lists/promotion?sublist=12345', headers=None)
+
     def test_get_list_by_id(self):
         self.client.get_lists('abc')
         self.session_mock().get.assert_called_with(self.expected_base_url + '/lists/abc', headers=None)
