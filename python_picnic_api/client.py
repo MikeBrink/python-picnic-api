@@ -80,6 +80,18 @@ class PicnicAPI:
             path = "/lists"
         return self._get(path)
 
+    def get_sublist(self, list_id: str, sublist_id: str) -> list:
+        """Get sublist.
+
+        Args:
+            list_id (str): ID of list, corresponding to requested sublist.
+            sublist_id (str): ID of sublist.
+
+        Returns:
+            list: Sublist result.
+        """
+        return self._get(f"/lists/{list_id}?sublist={sublist_id}")
+
     def get_cart(self):
         return self._get("/cart")
 
