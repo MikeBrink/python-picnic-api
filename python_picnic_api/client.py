@@ -1,3 +1,5 @@
+from hashlib import md5
+
 from .helper import _tree_generator, _url_generator
 from .session import PicnicAPISession, PicnicAuthError
 
@@ -19,7 +21,7 @@ class PicnicAPI:
         self.session = PicnicAPISession(auth_token=auth_token)
 
         # Login if not authenticated
-        if not self.session.authenticated() and username and password:
+        if not self.session.authenticated and username and password:
             self.login(username, password)
 
     def _get(self, path: str, add_picnic_headers=False):
@@ -42,19 +44,27 @@ class PicnicAPI:
         response = self.session.post(url, json=data).json()
 
         if self._contains_auth_error(response):
-            raise PicnicAuthError("Picnic authentication error")
+            raise PicnicAuthError(f"Picnic authentication error: {response['error'].get('message')}")
 
         return response
 
     @staticmethod
     def _contains_auth_error(response):
-        return isinstance(response, dict) and response.setdefault('error', {}).get('code') == 'AUTH_ERROR'
+        if not isinstance(response, dict):
+            return False
+
+        error_code = response.setdefault("error", {}).get("code")
+        return error_code == "AUTH_ERROR" or error_code == "AUTH_INVALID_CRED"
 
     def login(self, username: str, password: str):
-        return self.session.login(username, password, self._base_url)
+        path = "/user/login"
+        secret = md5(password.encode("utf-8")).hexdigest()
+        data = {"key": username, "secret": secret, "client_id": 1}
+
+        return self._post(path, data)
 
     def logged_in(self):
-        return self.session.authenticated()
+        return self.session.authenticated
 
     def get_user(self):
         return self._get("/user")

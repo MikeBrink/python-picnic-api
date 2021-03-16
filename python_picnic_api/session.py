@@ -1,5 +1,4 @@
-from hashlib import md5
-from requests import Session
+from requests import Response, Session
 
 
 class PicnicAuthError(Exception):
@@ -7,50 +6,49 @@ class PicnicAuthError(Exception):
 
 
 class PicnicAPISession(Session):
-
     AUTH_HEADER = "x-picnic-auth"
 
-    def __init__(self, auth_token=None):
+    def __init__(self, auth_token: str = None):
         super().__init__()
-        self.auth_token = auth_token
+        self._auth_token = auth_token
 
         self.headers.update(
             {
                 "User-Agent": "okhttp/3.9.0",
                 "Content-Type": "application/json; charset=UTF-8",
-                self.AUTH_HEADER: self.auth_token
+                self.AUTH_HEADER: self._auth_token
             }
         )
 
-    def login(self, username: str, password: str, base_url: str):
-        """Login function for the Picnic API.
-
-        Args:
-            username (str): username, usually your email.
-            password (str): password.
-            base_url (str): The base url for doing requests
-        """
-
-        if "x-picnic-auth" in self.headers:
-            self.headers.pop("x-picnic-auth", None)
-
-        url = base_url + "/user/login"
-
-        secret = md5(password.encode("utf-8")).hexdigest()
-        data = {"key": username, "secret": secret, "client_id": 1}
-
-        response = self.post(url, json=data)
-        if self.AUTH_HEADER not in response.headers:
-            raise PicnicAuthError("Could not authenticate against Picnic API")
-
-        self.auth_token = response.headers[self.AUTH_HEADER]
-        self.headers.update({self.AUTH_HEADER: self.auth_token})
-
-        return self.auth_token
-
+    @property
     def authenticated(self):
-        """Returns if the user is authenticated by checking if the authentication token is set."""
-        return bool(self.auth_token)
+        """Returns whether the user is authenticated by checking if the authentication token is set."""
+        return bool(self._auth_token)
+
+    @property
+    def auth_token(self):
+        """Returns the auth token."""
+        return self._auth_token
+
+    def _update_auth_token(self, auth_token):
+        """Update the auth token if not None and changed."""
+        if auth_token and auth_token != self._auth_token:
+            self._auth_token = auth_token
+            self.headers.update({self.AUTH_HEADER: self._auth_token})
+
+    def get(self, url, **kwargs) -> Response:
+        """Do a GET request and update the auth token if set."""
+        response = super(PicnicAPISession, self).get(url, **kwargs)
+        self._update_auth_token(response.headers.get(self.AUTH_HEADER))
+
+        return response
+
+    def post(self, url, data=None, json=None, **kwargs) -> Response:
+        """Do a POST request and update the auth token if set."""
+        response = super(PicnicAPISession, self).post(url, data, json, **kwargs)
+        self._update_auth_token(response.headers.get(self.AUTH_HEADER))
+
+        return response
 
 
 __all__ = ["PicnicAuthError", "PicnicAPISession"]
