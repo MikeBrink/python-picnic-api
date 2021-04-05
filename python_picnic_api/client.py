@@ -139,13 +139,14 @@ class PicnicAPI:
 
     # Get full path of png image of size image_size for product with ID product_id
     def get_image_path(self, image_id, image_size):
-        size_parameters = ['tiny','small','medium','large','extra-large']
+        size_parameters = ['tiny', 'small', 'medium', 'large', 'extra-large']
         if (image_size not in size_parameters):
             # fallback: set image size to medium
-            size='medium'
+            size = 'medium'
         else:
-            size=image_size
+            size = image_size
         path = self._image_url+"/"+image_id+"/"+size+".png"   
         return path
+
 
 __all__ = ["PicnicAPI"]
