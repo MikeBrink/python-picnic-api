@@ -145,7 +145,7 @@ class PicnicAPI:
             size = 'medium'
         else:
             size = image_size
-        path = self._image_url+"/"+image_id+"/"+size+".png"   
+        path = self._image_url+"/"+image_id+"/"+size+".png"
         return path
 
 
