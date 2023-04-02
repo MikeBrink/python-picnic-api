@@ -29,8 +29,8 @@ class PicnicAPI:
 
         # Make the request, add special picnic headers if needed
         headers = {
-            "x-picnic-agent": "30100;1.15.77-10293",
-            "x-picnic-did": "3C417201548B2E3B"
+            "x-picnic-agent": "30100;1.15.183-14941;",
+            "x-picnic-did": "00DE6414C744E7CB"
         } if add_picnic_headers else None
         response = self.session.get(url, headers=headers).json()
 
@@ -59,7 +59,7 @@ class PicnicAPI:
     def login(self, username: str, password: str):
         path = "/user/login"
         secret = md5(password.encode("utf-8")).hexdigest()
-        data = {"key": username, "secret": secret, "client_id": 1}
+        data = {"key": username, "secret": secret, "client_id": 30100}
 
         return self._post(path, data)
 
