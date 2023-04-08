@@ -1,6 +1,7 @@
 from python_picnic_api.helper import get_image, get_recipe_image
 import requests
 
+
 def test_get_image():
     id = "8560e1f1c2d2811dfefbbb2342ef0d95250533f2131416aca459bde35d73e901"
     size = "tile-medium"
