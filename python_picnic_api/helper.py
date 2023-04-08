@@ -1,3 +1,5 @@
+import re
+
 # prefix components:
 space = "    "
 branch = "│   "
@@ -23,3 +25,25 @@ def _tree_generator(response: list, prefix: str = ""):
 
 def _url_generator(url: str, country_code: str, api_version: str):
     return url.format(country_code.lower(), api_version)
+
+
+def _get_category_id_from_link(category_link: str) -> str:
+    pattern = r'categories/(\d+)'
+    first_number = re.search(pattern, category_link)
+    if first_number:
+        result = str(first_number.group(1))
+        return result
+    else:
+        return None
+    
+    
+def _get_category_name(category_link: str, categories: list) -> str:
+    category_id = _get_category_id_from_link(category_link)
+    if category_id:
+        category = next((item for item in categories if item["id"] == category_id), None)
+        if category:
+            return category["name"]
+        else:
+            return None
+    else:
+        return None

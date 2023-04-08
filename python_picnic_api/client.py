@@ -1,6 +1,6 @@
 from hashlib import md5
 
-from .helper import _tree_generator, _url_generator
+from .helper import _tree_generator, _url_generator, _get_category_name
 from .session import PicnicAPISession, PicnicAuthError
 
 DEFAULT_URL = "https://storefront-prod.{}.picnicinternational.com/api/{}"
@@ -23,6 +23,13 @@ class PicnicAPI:
         # Login if not authenticated
         if not self.session.authenticated and username and password:
             self.login(username, password)
+        
+        self.high_level_categories = None
+
+    def initislize_high_level_categories(self):
+        """Initialize high-level categories once to avoid multiple requests."""
+        if not self.high_level_categories:
+            self.high_level_categories = self.get_categories(depth=1)
 
     def _get(self, path: str, add_picnic_headers=False):
         url = self._base_url + path
@@ -95,8 +102,18 @@ class PicnicAPI:
     def get_cart(self):
         return self._get("/cart")
         
-    def get_article(self, article_id: str):
+    def get_article(self, article_id: str, add_category_name=False):
         path = "/articles/" + article_id
+        article = self._get(path)
+        if add_category_name and "category_link" in article:
+            self.initislize_high_level_categories()
+            article.update(
+                category_name=_get_category_name(article['category_link'], self.high_level_categories)
+            )
+        return article
+        
+    def get_article_category(self, article_id: str):
+        path = "/articles/" + article_id + "/category"
         return self._get(path)
 
     def add_product(self, product_id: str, count: int = 1):

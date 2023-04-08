@@ -38,6 +38,16 @@ def test_get_article():
     assert "id" in response.keys()
     assert response["id"] == "s1001546"
     assert response["name"] == "Douwe Egberts aroma rood filterkoffie"
+
+
+def test_get_article_with_category_name():
+    response = picnic.get_article("s1001546", add_category_name=True)
+    assert isinstance(response, dict)
+    assert "id" in response.keys()
+    assert response["id"] == "s1001546"
+    assert response["name"] == "Douwe Egberts aroma rood filterkoffie"
+    assert "category_name" in response.keys()
+    assert response["category_name"] == "Koffie & thee"
     
 
 def test_get_lists():
