@@ -94,6 +94,10 @@ class PicnicAPI:
 
     def get_cart(self):
         return self._get("/cart")
+        
+    def get_article(self, article_id: str):
+        path = "/articles/" + article_id
+        return self._get(path)
 
     def add_product(self, product_id: str, count: int = 1):
         data = {"product_id": product_id, "count": count}
