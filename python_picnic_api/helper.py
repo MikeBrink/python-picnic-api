@@ -16,15 +16,7 @@ def _tree_generator(response: list, prefix: str = ""):
     # response each get pointers that are ├── with a final └── :
     pointers = [tee] * (len(response) - 1) + [last]
     for pointer, item in zip(pointers, response):
-        if "name" in item:  # print the item
-            pre = ""
-            if "unit_quantity" in item.keys():
-                pre = f"{item['unit_quantity']} "
-            after = ""
-            if "display_price" in item.keys():
-                after = f" €{int(item['display_price'])/100.0:.2f}"
-
-            yield prefix + pointer + pre + item["name"] + after
+        yield prefix + pointer + item["name"]
         if "items" in item:  # extend the prefix and recurse:
             extension = branch if pointer == tee else space
             # i.e. space because last, └── , above so no more |
