@@ -34,7 +34,7 @@ def get_recipe_image(id: str, size: str = "regular"):
     return f"{IMAGE_BASE_URL}/recipes/{id}/{size}.png"
 
 
-def get_image(id: str, size: str = "regular", suffix: str = "webp"):
+def get_image(id: str, size: str = "tile-regular", suffix: str = "webp"):
     assert (
         "tile" in size if suffix == "webp" else True
     ), "webp format only supports tile sizes"
