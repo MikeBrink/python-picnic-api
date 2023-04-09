@@ -26,7 +26,7 @@ class PicnicAPI:
         
         self.high_level_categories = None
 
-    def initislize_high_level_categories(self):
+    def initialize_high_level_categories(self):
         """Initialize high-level categories once to avoid multiple requests."""
         if not self.high_level_categories:
             self.high_level_categories = self.get_categories(depth=1)
@@ -106,7 +106,7 @@ class PicnicAPI:
         path = "/articles/" + article_id
         article = self._get(path)
         if add_category_name and "category_link" in article:
-            self.initislize_high_level_categories()
+            self.initialize_high_level_categories()
             article.update(
                 category_name=_get_category_name(article['category_link'], self.high_level_categories)
             )
