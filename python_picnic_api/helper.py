@@ -56,6 +56,7 @@ def _get_category_name(category_link: str, categories: list) -> str:
         else:
             return None
     else:
+        return None
 
 def get_recipe_image(id: str, size="regular"):
     sizes = IMAGE_SIZES + ["1250x1250"]
