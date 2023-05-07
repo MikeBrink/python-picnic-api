@@ -1,6 +1,6 @@
 from hashlib import md5
 
-from .helper import _tree_generator, _url_generator
+from .helper import _tree_generator, _url_generator, _get_category_name
 from .session import PicnicAPISession, PicnicAuthError
 
 DEFAULT_URL = "https://storefront-prod.{}.picnicinternational.com/api/{}"
@@ -23,14 +23,21 @@ class PicnicAPI:
         # Login if not authenticated
         if not self.session.authenticated and username and password:
             self.login(username, password)
+        
+        self.high_level_categories = None
+
+    def initialize_high_level_categories(self):
+        """Initialize high-level categories once to avoid multiple requests."""
+        if not self.high_level_categories:
+            self.high_level_categories = self.get_categories(depth=1)
 
     def _get(self, path: str, add_picnic_headers=False):
         url = self._base_url + path
 
         # Make the request, add special picnic headers if needed
         headers = {
-            "x-picnic-agent": "30100;1.15.77-10293",
-            "x-picnic-did": "3C417201548B2E3B"
+            "x-picnic-agent": "30100;1.15.183-14941;",
+            "x-picnic-did": "00DE6414C744E7CB"
         } if add_picnic_headers else None
         response = self.session.get(url, headers=headers).json()
 
@@ -59,7 +66,7 @@ class PicnicAPI:
     def login(self, username: str, password: str):
         path = "/user/login"
         secret = md5(password.encode("utf-8")).hexdigest()
-        data = {"key": username, "secret": secret, "client_id": 1}
+        data = {"key": username, "secret": secret, "client_id": 30100}
 
         return self._post(path, data)
 
@@ -94,6 +101,20 @@ class PicnicAPI:
 
     def get_cart(self):
         return self._get("/cart")
+        
+    def get_article(self, article_id: str, add_category_name=False):
+        path = "/articles/" + article_id
+        article = self._get(path)
+        if add_category_name and "category_link" in article:
+            self.initialize_high_level_categories()
+            article.update(
+                category_name=_get_category_name(article['category_link'], self.high_level_categories)
+            )
+        return article
+        
+    def get_article_category(self, article_id: str):
+        path = "/articles/" + article_id + "/category"
+        return self._get(path)
 
     def add_product(self, product_id: str, count: int = 1):
         data = {"product_id": product_id, "count": count}
