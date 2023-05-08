@@ -17,7 +17,7 @@ class PicnicAPI:
         self._base_url = _url_generator(
             DEFAULT_URL, self._country_code, DEFAULT_API_VERSION
         )
-
+        self._image_url = self._base_url+"/../../static/images"
         self.session = PicnicAPISession(auth_token=auth_token)
 
         # Login if not authenticated
@@ -157,6 +157,17 @@ class PicnicAPI:
     def print_categories(self, depth: int = 0):
         tree = "\n".join(_tree_generator(self.get_categories(depth=depth)))
         print(tree)
+
+    # Get full path of png image of size image_size for product with ID product_id
+    def get_image_path(self, image_id, image_size):
+        size_parameters = ['tiny', 'small', 'medium', 'large', 'extra-large']
+        if (image_size not in size_parameters):
+            # fallback: set image size to medium
+            size = 'medium'
+        else:
+            size = image_size
+        path = self._image_url+"/"+image_id+"/"+size+".png"
+        return path
 
 
 __all__ = ["PicnicAPI"]
