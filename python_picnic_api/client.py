@@ -80,6 +80,10 @@ class PicnicAPI:
         path = "/search?search_term=" + term
         return self._get(path)
 
+    def get_product(self, product_id: str):
+        path = "/product/{}".format(product_id)
+        return self._get(path)
+
     def get_lists(self, list_id: str = None):
         if list_id:
             path = "/lists/" + list_id
